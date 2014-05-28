@@ -1,0 +1,22 @@
+{
+  "name": "smn-http-data",
+  "version": "1.0.0",
+  "description": "JSON access to SMN data and summaries",
+  "engines": {
+    "node": "0.10.x",
+    "npm": "1.3.x"
+  },
+  "dependencies": {
+    "any-db": "1.0.x",
+    "any-db-postgres": "1.0.x",
+    "express": "3.4.x",
+    "json2csv": "2.2.x",
+    "moment": "2.5.x",
+    "squel": "2.0.x",
+    "underscore": "1.5.x",
+    "validator": "3.2.x",
+    "mongojs": "0.10.x"
+  },
+  "private": true,
+  "main": "app.js"
+}
