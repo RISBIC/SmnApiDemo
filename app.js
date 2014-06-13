@@ -7,7 +7,7 @@ var express = require('express'),
 var smn = {
     ip_address: process.env.OPENSHIFT_NODEJS_IP || '0.0.0.0',
     port: process.env.OPENSHIFT_NODEJS_PORT || 8080,
-    dbURL: 'postgres://admin3s86tsw:adlkvaj2VLU7@52d5139a5973ca520100008a-testarjuna.rhcloud.com:58216/smn'
+    dbURL: 'postgres://user:password@localhost:5432/smn'
 };
 
 // create app

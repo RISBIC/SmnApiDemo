@@ -1,2 +1,0 @@
-# Uncomment this line to enabled production mode (caching, gzip compression, minifised JSON output)
-# export NODE_ENV=production

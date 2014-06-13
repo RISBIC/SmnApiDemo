@@ -67,6 +67,7 @@ module.exports = exports = function (app, pool) {
         }
     });
 
+    // Try and hit the cache (MongoDB) first
     function cacheLookup(req, res, queryKey) {
         // hit MongoDB
         cache.reports.findOne({queryKey: queryKey}, function (err, result) {
@@ -83,6 +84,7 @@ module.exports = exports = function (app, pool) {
         });
     }
 
+    // Compute from the database
     function databaseLookup(req, res, queryKey, updateCache) {
         var outstationid = queryKey.outstation;
         var reporttype = queryKey.reportType;
@@ -153,6 +155,7 @@ module.exports = exports = function (app, pool) {
                 var min_period = parseInt(_.min(result.rows, function (row) { return parseInt(row.period); }).period);
                 var max_period = parseInt(_.max(result.rows, function (row) { return parseInt(row.period); }).period);
 
+                // Calculate lower bound of search
                 if (req.query.timestart)
                 {
                     var timestart = validator.toInt(req.query.timestart);
@@ -161,6 +164,7 @@ module.exports = exports = function (app, pool) {
                     min_period = (timestart < min_period) ? timestart : min_period;
                 }
 
+                // Calculate upper bound of search
                 if (req.query.timestop)
                 {
                     var timestop = validator.toInt(req.query.timestop);
@@ -171,6 +175,7 @@ module.exports = exports = function (app, pool) {
 
                 var missing = [];
 
+                // Calculate where the missing rows are
                 for (var i = min_period; i < max_period; i += gap)
                 {
                     if (_.where(result.rows, {period: i.toString()}).length === 0)
@@ -204,30 +209,6 @@ module.exports = exports = function (app, pool) {
     /**
      * UTILITY FUNCTIONS
      */
-    function debugRequest(req, query)
-    {
-        console.log('[%s] URI: [%s], SQL: [%s]', moment.utc().format(), req.url, query.toString());
-    }
-
-    function sendError(res, statusCode, message, err) {
-        // ISE statusCode if not provided
-        statusCode = statusCode || 500;
-
-        // Generic message if not provided
-        message = message || 'An unidentified error occurred while handling the request';
-
-        response = {
-            statusCode: statusCode,
-            message: message
-        };
-
-        if (err) {
-            response.cause = err;
-        }
-
-        res.jsonp(statusCode, response);
-    }
-
     // Can this query be cached (i.e., does it fall into a period still being collected for)
     function isCacheable (queryKey) {
         var now = moment.utc().valueOf();
@@ -240,6 +221,7 @@ module.exports = exports = function (app, pool) {
         return false;
     }
 
+    // Parameter name to period length (in milliseconds)
     function periodLength (period) {
         switch (period)
         {
@@ -254,6 +236,7 @@ module.exports = exports = function (app, pool) {
         }
     }
 
+    // Create empty/synthetic report rows to fill in time gaps
     function generateEmptyReportJSON(type, id, timestamp)
     {
         if (type == 'speed')
@@ -298,5 +281,29 @@ module.exports = exports = function (app, pool) {
         {
             return {};
         }
+    }
+
+    function debugRequest(req, query)
+    {
+        console.log('[%s] URI: [%s], SQL: [%s]', moment.utc().format(), req.url, query.toString());
+    }
+
+    function sendError(res, statusCode, message, err) {
+        // ISE statusCode if not provided
+        statusCode = statusCode || 500;
+
+        // Generic message if not provided
+        message = message || 'An unidentified error occurred while handling the request';
+
+        response = {
+            statusCode: statusCode,
+            message: message
+        };
+
+        if (err) {
+            response.cause = err;
+        }
+
+        res.jsonp(statusCode, response);
     }
 };

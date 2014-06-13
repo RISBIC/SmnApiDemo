@@ -181,6 +181,7 @@ module.exports = exports = function (app, pool, cachePool) {
                 return console.error(err);
             }
 
+            // Support bundling JSON into CSV (for Civil Engineering School)
             if (req.query.format && req.query.format == 'csv')
             {
                 json2csv({data: result.rows, fields: ['id', 'classcode', 'direction', 'lane', 'outstationid', 'site', 'speed', 'time']}, function(err, csv) {
@@ -199,26 +200,6 @@ module.exports = exports = function (app, pool, cachePool) {
             }
         });
     });
-
-    // Build/deliver a JSON object for an error
-    function error_json(res, statusCode, message, err) {
-        // ISE statusCode if not provided
-        statusCode = statusCode || 500;
-
-        // Generic message if not provided
-        message = message || 'An unidentified error occurred while handling the request';
-
-        response = {
-            statusCode: statusCode,
-            message: message
-        };
-
-        if (err) {
-            response.cause = err;
-        }
-
-        res.jsonp(statusCode, response);
-    }
 
     // Convert raw SQL results to to our response
     function outstation_json(row) {
@@ -251,6 +232,26 @@ module.exports = exports = function (app, pool, cachePool) {
         });
 
         return result;
+    }
+
+    // Build/deliver a JSON object for an error
+    function error_json(res, statusCode, message, err) {
+        // ISE statusCode if not provided
+        statusCode = statusCode || 500;
+
+        // Generic message if not provided
+        message = message || 'An unidentified error occurred while handling the request';
+
+        response = {
+            statusCode: statusCode,
+            message: message
+        };
+
+        if (err) {
+            response.cause = err;
+        }
+
+        res.jsonp(statusCode, response);
     }
 
     function debug_request(req, query)
